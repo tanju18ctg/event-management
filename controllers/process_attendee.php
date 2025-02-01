@@ -1,5 +1,5 @@
 <?php
-include 'config.php';
+include '../config/config.php';
 session_start();
 header('Content-Type: application/json'); // Ensure correct response type
 
@@ -9,7 +9,8 @@ if (!isset($_SESSION["user_id"])) {
 }
 
 // Only allow POST requests
-if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+if ($_SERVER["REQUEST_METHOD"] !== "POST")
+{
     echo json_encode(["status" => "error", "message" => "Access Denied!"]);
     exit();
 }

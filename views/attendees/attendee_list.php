@@ -1,5 +1,5 @@
 <?php
-include 'config.php';
+include '../../config/config.php';
 session_start();
 
 if (!isset($_SESSION["user_id"])) {
@@ -8,8 +8,9 @@ if (!isset($_SESSION["user_id"])) {
 }
 
 // Get event details
-if (!isset($_GET["event_id"])) {
-    header("Location: event_list.php");
+if (!isset($_GET["event_id"])) 
+{
+    header("Location: ../event/event_list.php");
     exit();
 }
 
@@ -60,25 +61,30 @@ $total_pages = ceil($total_attendees / $limit);
         body {
             background-color: #f4f4f4;
         }
-        .container-box {
+        .container-box 
+        {
             background: white;
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
             margin-top: 50px;
         }
-        .table thead {
+        .table thead 
+        {
             background-color: #343a40;
             color: white;
         }
-        .pagination {
+        .pagination 
+        {
             margin-top: 20px;
         }
-        .btn-back {
+        .btn-back 
+        {
             background-color: #6c757d;
             border: none;
         }
-        .btn-back:hover {
+        .btn-back:hover
+        {
             background-color: #5a6268;
         }
     </style>
@@ -90,7 +96,7 @@ $total_pages = ceil($total_attendees / $limit);
         <h2 class="text-center"><i class="fas fa-users"></i> Attendee List for <b><?= htmlspecialchars($event["name"]) ?></b></h2>
 
         <!-- Back to Events Button -->
-        <a href="event_list.php" class="btn btn-primary mb-3"><i class="fas fa-arrow-left"></i> Back to Events</a>
+        <a href="../events/event_list.php" class="btn btn-primary mb-3"><i class="fas fa-arrow-left"></i> Back to Events</a>
 
         <div class="table-responsive">
             <table class="table table-bordered table-striped">

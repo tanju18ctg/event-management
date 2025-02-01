@@ -16,7 +16,7 @@ $margin_left = ($current_page == "dashboard.php") ? "180px" : "0px";
             <span class="navbar-text text-white me-3">
                 <i class="fas fa-user-circle"></i> <?= htmlspecialchars($_SESSION["username"]); ?>
             </span>
-            <a href="logout.php" class="btn btn-outline-light btn-sm">
+            <a href="views/auth/logout.php" class="btn btn-outline-light btn-sm">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
         </div>

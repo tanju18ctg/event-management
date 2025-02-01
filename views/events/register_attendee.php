@@ -1,9 +1,9 @@
 <?php
-include 'config.php';
+include '../../config/config.php';
 session_start();
 
 if (!isset($_SESSION["user_id"])) {
-    header("Location: login.php");
+    header("Location: ../login/login.php");
     exit();
 }
 
@@ -65,7 +65,7 @@ if ($event["current_attendees"] >= $event["max_capacity"]) {
                 e.preventDefault();
 
                 $.ajax({
-                    url: "process_attendee.php",
+                    url: "../../controllers/process_attendee.php",
                     type: "POST",
                     data: $(this).serialize(),
                     dataType: "json",

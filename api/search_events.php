@@ -1,5 +1,5 @@
 <?php
-include 'config.php';
+include '../config/config.php';
 
 $query = isset($_GET['query']) ? trim($_GET['query']) : "";
 
