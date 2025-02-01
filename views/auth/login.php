@@ -14,7 +14,7 @@ session_start();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         body {
-            background: url('https://source.unsplash.com/1600x900/?business,technology') no-repeat center center fixed;
+            background: url('../../assets/images/login3.jpg') no-repeat center center fixed;
             background-size: cover;
             font-family: Arial, sans-serif;
         }

@@ -13,7 +13,7 @@ include '../../config/session.php';
     <style>
         /* Background Styling */
         body {
-            background: url('https://source.unsplash.com/1600x900/?technology,abstract') no-repeat center center fixed;
+            background: url('../../assets/images/login2.jpg') no-repeat center center fixed;
             background-size: cover;
             font-family: Arial, sans-serif;
         }

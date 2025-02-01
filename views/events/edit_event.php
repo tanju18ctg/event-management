@@ -1,8 +1,8 @@
 <?php
-include 'config.php';
+include '../../config/config.php';
 session_start();
 if (!isset($_SESSION["user_id"])) {
-    header("Location: login.php");
+    header("Location: ../auth/login.php");
     exit();
 }
 
@@ -35,7 +35,7 @@ if (!$event) {
 <body>
     <div class="container mt-5">
         <h2>Edit Event</h2>
-        <form action="process_event.php" method="POST">
+        <form action="../../controllers/process_event.php" method="POST">
             <input type="hidden" name="id" value="<?= $event['id'] ?>">
             <div class="mb-3">
                 <label>Event Name:</label>

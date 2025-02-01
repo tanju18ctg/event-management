@@ -112,7 +112,7 @@ $total_pages = ceil($total_events_count / $limit);
 <div class="main-content">
     <?php include 'includes/navbar.php'; ?> <!-- Including Navbar -->
 
-    <h2 class="text-center" style="margin-top:30px">Dashboard</h2>
+    <h3 class="text-center" style="margin-top:30px">Dashboard</h3>
 
     <!-- Dashboard Statistics -->
     <div class="row text-center mt-2">

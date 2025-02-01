@@ -34,7 +34,7 @@ if ($stmt->num_rows > 0) {
         $_SESSION["user_id"] = $id;
         $_SESSION["username"] = $username;
 
-        header("Location: dashboard.php");
+        header("Location: ../dashboard.php");
         exit();
     } else {
         header("Location: ../views/auth/login.php?error=Invalid email or password!");
