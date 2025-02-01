@@ -163,7 +163,7 @@ $(document).ready(function() {
     $("#searchInput").on("keyup", function() {
         let searchText = $(this).val();
         $.ajax({
-            url: "search_events.php",
+            url: "../../api/search_events.php",
             method: "GET",
             data: { query: searchText },
             success: function(response) {
