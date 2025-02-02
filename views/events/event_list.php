@@ -7,7 +7,13 @@ if (!isset($_SESSION["user_id"])) {
 }
 
 $user_id = $_SESSION["user_id"];
-$user_role = $_SESSION["role"]; // Assuming role is stored in the session
+// Prepare and execute the query
+$stmt = $conn->prepare("SELECT role FROM users WHERE id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+// Fetch the user role
+$user_role = $result->fetch_assoc()['role'];
 
 // Pagination settings
 $limit = 5; // Number of events per page
@@ -111,7 +117,7 @@ $total_pages = ceil($total_events / $limit);
 
     <!-- Full-Width Header -->
     <div class="full-width-header">
-        <?php include '../../includes/navbar.php'; ?>
+        <?php include '../../includes/event_list_nav.php'; ?>
     </div>
 
     <div class="container mt-4">

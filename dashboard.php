@@ -3,7 +3,15 @@ include 'config/config.php';
 include 'config/session.php';
 
 $user_id = $_SESSION["user_id"];
-$user_role = $_SESSION["role"]; // Assuming 'role' is stored in the session
+
+// Prepare and execute the query
+$stmt = $conn->prepare("SELECT role FROM users WHERE id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+// Fetch the user role
+$user_role = $result->fetch_assoc()['role'];
+
 
 // Pagination settings
 $limit = 5; // Events per page
@@ -46,7 +54,6 @@ $total_attendees = $total_attendees_result ? $total_attendees_result->fetch_asso
 // Fetch upcoming events with search & pagination
 $upcoming_events_sql = "SELECT * FROM events $event_condition $search_sql ORDER BY event_date ASC LIMIT ? OFFSET ?";
 $upcoming_events_stmt = $conn->prepare($upcoming_events_sql);
-
 if ($user_role === 'admin') {
     if ($search) {
         $search_param = "%$search%";

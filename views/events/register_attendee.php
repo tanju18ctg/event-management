@@ -25,10 +25,18 @@ if (!$event) {
     die("Error: Event not found.");
 }
 
+
 // Check if event is full
 if ($event["current_attendees"] >= $event["max_capacity"]) {
-    die("<div class='alert alert-danger text-center'>Registration is closed. The event is full!</div>");
+    echo "<div class='container mt-5'>
+            <div class='alert alert-danger text-center' role='alert' style='font-size: 18px; padding: 15px; border-radius: 8px; color:red; text-align:center; font-weight:bold;'>
+                <strong>⚠ Registration is closed.</strong> The event is full!
+                <a href='../../dashboard.php'> Back To Home </a>
+            </div>
+          </div>";
+    exit;
 }
+
 ?>
 
 <!DOCTYPE html>
