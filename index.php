@@ -13,7 +13,7 @@ session_start();
     <style>
         /* Background Animation */
         body {
-            background: linear-gradient(-45deg, #6a11cb, #2575fc, #ff416c, #ff4b2b);
+            background: linear-gradient(-45deg, #6a11cb, #2575fc,#980527, #ff4b2b);
             background-size: 400% 400%;
             animation: gradientBG 8s ease infinite;
             height: 100vh;
