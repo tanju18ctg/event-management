@@ -6,6 +6,9 @@ if (!isset($_SESSION["user_id"])) {
     exit();
 }
 
+$user_id = $_SESSION["user_id"];
+$user_role = $_SESSION["role"]; // Assuming role is stored in the session
+
 // Pagination settings
 $limit = 5; // Number of events per page
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -17,21 +20,38 @@ $sort_order = isset($_GET['order']) && $_GET['order'] == 'desc' ? 'DESC' : 'ASC'
 
 // Search functionality
 $search = isset($_GET['search']) ? trim($_GET['search']) : "";
-$search_sql = $search ? "WHERE name LIKE '%$search%'" : "";
+$search_sql = $search ? "AND name LIKE '%$search%'" : "";
 
-// Fetch paginated and sorted events
-$sql = "SELECT * FROM events $search_sql ORDER BY $sort_column $sort_order LIMIT $limit OFFSET $offset";
-$result = $conn->query($sql);
+// Base query
+if ($user_role === 'admin') {
+    // Admin sees all events
+    $sql = "SELECT * FROM events WHERE 1 $search_sql ORDER BY $sort_column $sort_order LIMIT $limit OFFSET $offset";
+    $total_events_sql = "SELECT COUNT(*) as count FROM events WHERE 1 $search_sql";
+} else {
+    // Regular users see only their events
+    $sql = "SELECT * FROM events WHERE user_id = ? $search_sql ORDER BY $sort_column $sort_order LIMIT $limit OFFSET $offset";
+    $total_events_sql = "SELECT COUNT(*) as count FROM events WHERE user_id = ? $search_sql";
+}
 
-// Get total records for pagination
-$total_events_sql = "SELECT COUNT(*) as count FROM events $search_sql";
-$total_events_result = $conn->query($total_events_sql);
+$stmt = $conn->prepare($sql);
+$total_stmt = $conn->prepare($total_events_sql);
+
+if ($user_role !== 'admin') {
+    $stmt->bind_param("i", $user_id);
+    $total_stmt->bind_param("i", $user_id);
+}
+
+$stmt->execute();
+$result = $stmt->get_result();
+
+$total_stmt->execute();
+$total_events_result = $total_stmt->get_result();
 $total_events = $total_events_result->fetch_assoc()['count'];
 $total_pages = ceil($total_events / $limit);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <title>Event List</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -87,7 +107,6 @@ $total_pages = ceil($total_events / $limit);
         }
     </style>
 </head>
-
 <body>
 
     <!-- Full-Width Header -->
@@ -104,12 +123,9 @@ $total_pages = ceil($total_events / $limit);
 
             <!-- Search Bar & Create Event Button -->
             <div class="d-flex justify-content-between mb-3">
-                <!-- Search Bar -->
                 <div class="search-box w-100 me-2">
                     <input type="text" id="searchInput" class="form-control" placeholder="Search events...">
                 </div>
-
-                <!-- Create Event Button -->
                 <a href="create_event.php" class="btn btn-success"><i class="fas fa-plus"></i> Create Event</a>
             </div>
 
@@ -175,5 +191,4 @@ $(document).ready(function() {
 </script>
 
 </body>
-
 </html>

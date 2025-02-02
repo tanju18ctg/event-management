@@ -2,6 +2,9 @@
 include 'config/config.php';
 include 'config/session.php';
 
+$user_id = $_SESSION["user_id"];
+$user_role = $_SESSION["role"]; // Assuming 'role' is stored in the session
+
 // Pagination settings
 $limit = 5; // Events per page
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -9,26 +12,81 @@ $offset = ($page - 1) * $limit;
 
 // Search functionality
 $search = isset($_GET['search']) ? trim($_GET['search']) : "";
-$search_sql = $search ? "AND (name LIKE '%$search%' OR description LIKE '%$search%')" : "";
+$search_sql = $search ? "AND (name LIKE ? OR description LIKE ?)" : "";
 
-// Fetch total events & attendees
-$total_events_sql = "SELECT COUNT(*) as count FROM events";
-$total_events_result = $conn->query($total_events_sql);
+// Base query conditions
+$event_condition = ($user_role === 'admin') ? "WHERE event_date >= NOW()" : "WHERE user_id = ? AND event_date >= NOW()";
+
+// Fetch total events
+$total_events_sql = "SELECT COUNT(*) as count FROM events $event_condition";
+$total_events_stmt = $conn->prepare($total_events_sql);
+
+if ($user_role !== 'admin') {
+    $total_events_stmt->bind_param("i", $user_id);
+}
+
+$total_events_stmt->execute();
+$total_events_result = $total_events_stmt->get_result();
 $total_events = $total_events_result ? $total_events_result->fetch_assoc()['count'] : 0;
 
-$total_attendees_sql = "SELECT COUNT(*) as count FROM attendees";
-$total_attendees_result = $conn->query($total_attendees_sql);
+// Fetch total attendees
+$total_attendees_sql = ($user_role === 'admin') ? 
+    "SELECT COUNT(*) as count FROM attendees" : 
+    "SELECT COUNT(*) as count FROM attendees INNER JOIN events ON attendees.event_id = events.id WHERE events.user_id = ?";
+$total_attendees_stmt = $conn->prepare($total_attendees_sql);
+
+if ($user_role !== 'admin') {
+    $total_attendees_stmt->bind_param("i", $user_id);
+}
+
+$total_attendees_stmt->execute();
+$total_attendees_result = $total_attendees_stmt->get_result();
 $total_attendees = $total_attendees_result ? $total_attendees_result->fetch_assoc()['count'] : 0;
 
 // Fetch upcoming events with search & pagination
-$upcoming_events_sql = "SELECT * FROM events WHERE event_date >= NOW() $search_sql ORDER BY event_date ASC LIMIT $limit OFFSET $offset";
-$upcoming_events_result = $conn->query($upcoming_events_sql);
+$upcoming_events_sql = "SELECT * FROM events $event_condition $search_sql ORDER BY event_date ASC LIMIT ? OFFSET ?";
+$upcoming_events_stmt = $conn->prepare($upcoming_events_sql);
+
+if ($user_role === 'admin') {
+    if ($search) {
+        $search_param = "%$search%";
+        $upcoming_events_stmt->bind_param("ssii", $search_param, $search_param, $limit, $offset);
+    } else {
+        $upcoming_events_stmt->bind_param("ii", $limit, $offset);
+    }
+} else {
+    if ($search) {
+        $search_param = "%$search%";
+        $upcoming_events_stmt->bind_param("issii", $user_id, $search_param, $search_param, $limit, $offset);
+    } else {
+        $upcoming_events_stmt->bind_param("iii", $user_id, $limit, $offset);
+    }
+}
+
+$upcoming_events_stmt->execute();
+$upcoming_events_result = $upcoming_events_stmt->get_result();
 
 // Get total event count for pagination
-$total_events_query = "SELECT COUNT(*) as count FROM events WHERE event_date >= NOW() $search_sql";
-$total_events_count = $conn->query($total_events_query)->fetch_assoc()['count'];
+$total_events_query = "SELECT COUNT(*) as count FROM events $event_condition $search_sql";
+$total_events_stmt = $conn->prepare($total_events_query);
+
+if ($user_role === 'admin') {
+    if ($search) {
+        $total_events_stmt->bind_param("ss", $search_param, $search_param);
+    }
+} else {
+    if ($search) {
+        $total_events_stmt->bind_param("iss", $user_id, $search_param, $search_param);
+    } else {
+        $total_events_stmt->bind_param("i", $user_id);
+    }
+}
+
+$total_events_stmt->execute();
+$total_events_count = $total_events_stmt->get_result()->fetch_assoc()['count'];
 $total_pages = ceil($total_events_count / $limit);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -161,9 +219,9 @@ $total_pages = ceil($total_events_count / $limit);
                     <td><?= $row['max_capacity'] ?></td>
                     <td><?= date('Y-m-d H:i', strtotime($row['event_date'])) ?></td>
                     <td>
-                        <a href="register_attendee.php?event_id=<?= $row['id'] ?>" class="btn btn-success btn-sm"><i class="fas fa-user-plus"></i> Register</a>
-                        <a href="../attendees/attendee_list.php?event_id=<?= $row['id'] ?>" class="btn btn-info btn-sm"><i class="fas fa-list"></i> View Attendees</a>
-                        <a href="../attendees/download_attendees.php?event_id=<?= $row['id'] ?>" class="btn btn-secondary btn-sm"><i class="fas fa-file-csv"></i> Download CSV</a>
+                        <a href="views/events/register_attendee.php?event_id=<?= $row['id'] ?>" class="btn btn-success btn-sm"><i class="fas fa-user-plus"></i> Register</a>
+                        <a href="views/attendees/attendee_list.php?event_id=<?= $row['id'] ?>" class="btn btn-info btn-sm"><i class="fas fa-list"></i> View Attendees</a>
+                        <a href="views/attendees/download_attendees.php?event_id=<?= $row['id'] ?>" class="btn btn-secondary btn-sm"><i class="fas fa-file-csv"></i> Download CSV</a>
                     </td>
                 </tr>
                 <?php } ?>
